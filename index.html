@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SWAG 直播推拉流技術診斷與客服助手</title>
+  <title>SWAG 直播推拉流品質診斷系統</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
   
   <script>
     tailwind.config = {
@@ -15,120 +15,141 @@
         extend: {
           colors: {
             swag: {
-              pink: '#FF3B70',
-              black: '#000000',
-              white: '#FFFFFF',
-              dark: '#111111',
-              card: '#1A1A1A'
+              pink: '#FF2A6D',
+              dark: '#0D0F14',
+              card: '#151821',
+              cardInner: '#10131B',
+              border: '#232938'
             }
           },
           fontFamily: {
-            sans: ['"Gotham"', '"Noto Sans TC"', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans TC"', 'sans-serif'],
           }
         }
       }
     }
   </script>
 </head>
-<body class="bg-swag-dark text-swag-white min-h-screen py-10 px-4 font-sans">
-  <div class="max-w-4xl mx-auto">
-    <header class="mb-8 flex flex-col items-center justify-center">
-      <!-- SWAG Logo 區塊 -->
-      <div class="mb-4">
-        <div class="flex items-center justify-center bg-swag-pink text-white font-bold text-2xl tracking-widest px-6 py-2 rounded-lg">
-          SWAG
-        </div>
+<body class="bg-swag-dark text-gray-100 min-h-screen py-8 px-4 md:px-8 font-sans antialiased selection:bg-swag-pink selection:text-white">
+  <div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- 頂部 Header -->
+    <header class="flex items-center justify-between pb-2">
+      <div class="flex items-center gap-3">
+        <!-- SWAG 潮流皇冠向量標誌 -->
+        <svg class="h-9 w-auto text-swag-pink drop-shadow-[0_0_8px_rgba(255,42,109,0.6)]" viewBox="0 0 140 44" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <!-- 皇冠 -->
+          <path d="M18 4L22 10L27 3L32 10L36 4L34 14H20L18 4Z" />
+          <!-- 手寫塗鴉風 SWAG 字樣 -->
+          <text x="4" y="38" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="32" letter-spacing="1.5" class="italic">SWAG</text>
+        </svg>
+        <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+          直播推拉流品質診斷系統
+        </h1>
       </div>
-      <!-- 拿掉重複 SWAG 字眼的標題 -->
-      <h1 class="text-3xl font-bold text-swag-white mb-2">
-        直播推拉流品質診斷系統
-      </h1>
-      <p class="text-gray-400 mt-2">點選框格直接 <kbd class="px-2 py-0.5 bg-swag-card border border-gray-700 rounded text-xs text-gray-300">Ctrl + V</kbd> 貼上截圖，免存檔快速判讀</p>
+
+      <!-- 系統運作燈號 -->
+      <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#111C1D] border border-emerald-500/30 text-emerald-400 text-xs font-semibold tracking-wide shadow-sm">
+        <span>系統運作正常</span>
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+      </div>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-      <!-- 主播推流上傳/貼上框 -->
-      <div class="bg-swag-card p-5 rounded-xl border border-gray-800 flex flex-col items-center shadow-lg hover:shadow-swag-pink/10 transition-shadow">
-        <div class="flex items-center justify-between w-full mb-3">
-          <h2 class="text-lg font-semibold text-swag-pink">1. 主播推流截圖</h2>
-          <span class="text-xs text-gray-500 bg-gray-900 px-2 py-1 rounded">Ctrl+V 貼上</span>
+    <!-- 診斷輸入面板 -->
+    <section class="bg-swag-card rounded-2xl border border-swag-border p-6 shadow-xl relative overflow-hidden">
+      <div class="mb-5 flex items-center justify-between">
+        <h2 class="text-lg font-bold text-gray-200 tracking-wide flex items-center gap-2">
+          診斷輸入
+        </h2>
+        <span class="text-xs text-gray-500">支援點選框格按 <kbd class="px-2 py-0.5 bg-black/40 border border-gray-700 rounded text-gray-300">Ctrl + V</kbd> 貼上截圖</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+        <!-- 主播推流截圖框 -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-semibold text-gray-300">主播推流截圖</label>
+          </div>
+          <input type="file" id="streamerFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'streamer')" />
+          <div id="streamerBox" tabindex="0" onclick="focusBox('streamer')"
+               class="w-full h-56 border-2 border-dashed border-gray-700/80 hover:border-swag-pink focus:border-swag-pink focus:ring-2 focus:ring-swag-pink/20 rounded-xl bg-swag-cardInner flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden relative group">
+            <img id="streamerPreview" class="hidden w-full h-full object-contain p-2" />
+            <div id="streamerPlaceholder" class="text-center p-4">
+              <div class="w-12 h-12 rounded-lg bg-gray-800/80 border border-gray-700 flex items-center justify-center mx-auto mb-3 text-gray-400 group-hover:text-swag-pink group-hover:border-swag-pink/40 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+              </div>
+              <p class="text-sm font-medium text-gray-300">+ 點擊或拖曳上傳圖片</p>
+              <p class="text-xs text-gray-500 mt-1">或直接按 <span class="text-swag-pink font-semibold">Ctrl + V</span> 貼上截圖</p>
+            </div>
+          </div>
         </div>
 
-        <input type="file" id="streamerFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'streamer')" />
-        
-        <div id="streamerBox" tabindex="0" onclick="focusBox('streamer')"
-             class="w-full h-52 border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-swag-pink focus:border-swag-pink focus:ring-2 focus:ring-swag-pink/30 focus:outline-none transition overflow-hidden relative bg-black/50 group">
-          <img id="streamerPreview" class="hidden w-full h-full object-contain" />
-          <div id="streamerPlaceholder" class="text-center p-4 transition-transform group-hover:scale-105">
-            <svg class="w-10 h-10 text-gray-500 mx-auto mb-3 group-hover:text-swag-pink transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-            <p class="text-gray-300 text-sm font-medium">點擊此處按 <span class="text-swag-pink">Ctrl+V</span> 貼上</p>
-            <p class="text-gray-500 text-xs mt-2">或點擊開啟檔案、拖曳圖片</p>
+        <!-- 用戶拉流截圖框 -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-semibold text-gray-300">用戶拉流截圖</label>
+          </div>
+          <input type="file" id="userFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'user')" />
+          <div id="userBox" tabindex="0" onclick="focusBox('user')"
+               class="w-full h-56 border-2 border-dashed border-gray-700/80 hover:border-white focus:border-white focus:ring-2 focus:ring-white/20 rounded-xl bg-swag-cardInner flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden relative group">
+            <img id="userPreview" class="hidden w-full h-full object-contain p-2" />
+            <div id="userPlaceholder" class="text-center p-4">
+              <div class="w-12 h-12 rounded-lg bg-gray-800/80 border border-gray-700 flex items-center justify-center mx-auto mb-3 text-gray-400 group-hover:text-white group-hover:border-white/40 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+              </div>
+              <p class="text-sm font-medium text-gray-300">+ 點擊或拖曳上傳圖片</p>
+              <p class="text-xs text-gray-500 mt-1">或直接按 <span class="text-white font-semibold">Ctrl + V</span> 貼上截圖</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- 用戶拉流上傳/貼上框 -->
-      <div class="bg-swag-card p-5 rounded-xl border border-gray-800 flex flex-col items-center shadow-lg hover:shadow-white/5 transition-shadow">
-        <div class="flex items-center justify-between w-full mb-3">
-          <h2 class="text-lg font-semibold text-white">2. 用戶拉流截圖</h2>
-          <span class="text-xs text-gray-500 bg-gray-900 px-2 py-1 rounded">Ctrl+V 貼上</span>
-        </div>
-
-        <input type="file" id="userFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'user')" />
-        
-        <div id="userBox" tabindex="0" onclick="focusBox('user')"
-             class="w-full h-52 border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-white focus:border-white focus:ring-2 focus:ring-white/30 focus:outline-none transition overflow-hidden relative bg-black/50 group">
-          <img id="userPreview" class="hidden w-full h-full object-contain" />
-          <div id="userPlaceholder" class="text-center p-4 transition-transform group-hover:scale-105">
-            <svg class="w-10 h-10 text-gray-500 mx-auto mb-3 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-            <p class="text-gray-300 text-sm font-medium">點擊此處按 <span class="text-white">Ctrl+V</span> 貼上</p>
-            <p class="text-gray-500 text-xs mt-2">或點擊開啟檔案、拖曳圖片</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 提交按鈕 -->
-    <div class="text-center mb-10">
-      <button id="submitBtn" onclick="startAnalysis()" class="bg-swag-pink hover:bg-[#E0295D] text-white font-bold px-12 py-4 rounded-full shadow-[0_0_20px_rgba(255,59,112,0.3)] transition-all transform hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(255,59,112,0.5)] text-lg tracking-wide">
-        開始 AI 診斷
+      <!-- 發光霓虹按鈕 -->
+      <button id="submitBtn" onclick="startAnalysis()" 
+              class="w-full py-4 rounded-xl font-bold text-white tracking-wide text-base transition-all transform active:scale-[0.99] bg-gradient-to-r from-swag-pink via-[#FF4A82] to-swag-pink shadow-[0_0_25px_rgba(255,42,109,0.5)] hover:shadow-[0_0_35px_rgba(255,42,109,0.7)] flex items-center justify-center gap-2">
+        <span>開始 AI 診斷</span>
+        <span>🎉</span>
       </button>
-    </div>
+    </section>
 
-    <!-- 輸出面板 -->
-    <div id="resultCard" class="hidden bg-swag-card border border-gray-800 rounded-xl p-8 shadow-2xl space-y-6 relative overflow-hidden">
-      <!-- 裝飾性頂部邊線 -->
-      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-swag-pink via-purple-500 to-swag-pink opacity-80"></div>
-      
-      <div class="flex items-center justify-between border-b border-gray-800 pb-5">
-        <div class="flex items-center gap-3">
-          <span id="statusTag" class="px-3 py-1.5 rounded-md text-sm font-bold shadow-sm"></span>
-          <span id="compensationTag" class="px-3 py-1.5 rounded-md text-sm font-bold border shadow-sm"></span>
+    <!-- 診斷結果面板 (分析完成後展示) -->
+    <section id="resultCard" class="hidden bg-swag-card rounded-2xl border border-swag-border p-6 shadow-2xl space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-swag-border/80 pb-4">
+        <div>
+          <h2 class="text-lg font-bold text-gray-200 tracking-wide mb-1">診斷結果</h2>
+          <div class="flex items-center gap-3 mt-2">
+            <span id="statusTag" class="px-3 py-1 rounded-md text-xs font-bold shadow-sm"></span>
+            <span id="compensationTag" class="px-3 py-1 rounded-md text-xs font-bold border shadow-sm"></span>
+          </div>
         </div>
-        <button onclick="copyReply()" class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-sm px-4 py-2 rounded-lg transition border border-gray-700 font-medium">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-          複製回覆話術
+
+        <button onclick="copyReply()" 
+                class="flex items-center gap-2 bg-[#1C212E] hover:bg-[#252C3D] text-gray-200 text-xs font-semibold px-4 py-2.5 rounded-lg border border-gray-700 transition">
+          <svg class="w-4 h-4 text-swag-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+          一鍵複製客服話術
         </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <h3 class="text-sm font-bold text-gray-400 mb-3 flex items-center gap-2 uppercase tracking-wider">
-             <svg class="w-5 h-5 text-swag-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-             技術診斷摘要
+      <!-- 分析詳情與話術輸出 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="bg-swag-cardInner p-5 rounded-xl border border-swag-border/60">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-swag-pink mb-3 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-swag-pink"></span> 技術診斷摘要
           </h3>
-          <p id="diagText" class="text-sm text-gray-300 leading-relaxed bg-[#0A0A0A] p-5 rounded-xl border border-gray-800/80 min-h-[140px] shadow-inner"></p>
+          <p id="diagText" class="text-sm text-gray-300 leading-relaxed min-h-[120px] whitespace-pre-wrap"></p>
         </div>
 
-        <div>
-          <h3 class="text-sm font-bold text-gray-400 mb-3 flex items-center gap-2 uppercase tracking-wider">
-             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-             官方客服回覆
+        <div class="bg-swag-cardInner p-5 rounded-xl border border-swag-border/60">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-gray-300 mb-3 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-white"></span> 官方建議客服回覆
           </h3>
-          <div id="replyText" class="bg-[#0A0A0A] p-5 rounded-xl text-sm text-gray-200 whitespace-pre-wrap leading-relaxed border border-gray-800/80 min-h-[140px] shadow-inner"></div>
+          <div id="replyText" class="text-sm text-gray-200 leading-relaxed min-h-[120px] whitespace-pre-wrap"></div>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 
   <script>
@@ -202,7 +223,7 @@
       }
 
       const btn = document.getElementById('submitBtn');
-      const originalText = btn.innerText;
+      const originalText = btn.innerHTML;
       btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> AI 深度診斷中...`;
       btn.disabled = true;
       btn.classList.add('opacity-80', 'cursor-wait');
@@ -227,22 +248,22 @@
         const compTag = document.getElementById('compensationTag');
         if (data.isEligibleForCompensation) {
           compTag.innerText = '✓ 符合退鑽補償';
-          compTag.className = 'px-3 py-1.5 rounded-md text-sm font-bold border border-green-500/30 bg-green-500/10 text-green-400 shadow-sm';
+          compTag.className = 'px-3 py-1 rounded-md text-xs font-bold border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shadow-sm';
         } else {
           compTag.innerText = '✕ 不符合補償條件';
-          compTag.className = 'px-3 py-1.5 rounded-md text-sm font-bold border border-swag-pink/30 bg-swag-pink/10 text-swag-pink shadow-sm';
+          compTag.className = 'px-3 py-1 rounded-md text-xs font-bold border border-swag-pink/30 bg-swag-pink/10 text-swag-pink shadow-sm';
         }
 
         const statusTag = document.getElementById('statusTag');
         statusTag.innerText = data.faultSide === 'streamer' ? '⚠️ 主播端/平台異常' : '📱 用戶本機/網路異常';
-        statusTag.className = 'px-3 py-1.5 rounded-md text-sm font-bold bg-white text-black shadow-sm';
+        statusTag.className = 'px-3 py-1 rounded-md text-xs font-bold bg-white text-black shadow-sm';
 
         document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       } catch (err) {
         alert('診斷請求失敗：' + err.message);
       } finally {
-        btn.innerText = originalText;
+        btn.innerHTML = originalText;
         btn.disabled = false;
         btn.classList.remove('opacity-80', 'cursor-wait');
       }
@@ -254,12 +275,12 @@
       
       const btn = event.currentTarget;
       const originalHtml = btn.innerHTML;
-      btn.innerHTML = `<svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 已複製至剪貼簿！`;
-      btn.classList.add('border-green-500/50', 'text-green-400');
+      btn.innerHTML = `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 已複製至剪貼簿！`;
+      btn.classList.add('border-emerald-500/50', 'text-emerald-400');
       
       setTimeout(() => {
         btn.innerHTML = originalHtml;
-        btn.classList.remove('border-green-500/50', 'text-green-400');
+        btn.classList.remove('border-emerald-500/50', 'text-emerald-400');
       }, 2000);
     }
   </script>
