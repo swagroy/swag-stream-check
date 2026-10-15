@@ -12,13 +12,12 @@
       theme: {
         extend: {
           colors: {
-            /* 配合新 Logo 的專屬蒂芬妮綠色系 */
             brand: '#12E5B6',       
             brandHover: '#0DAA87',
             brandText: '#000000',   
-            bgDark: '#09090B',       /* 極黑背景 */
-            card: '#18181B',         /* 沉穩深灰卡片 */
-            borderCol: '#27272A',    /* 質感邊線 */
+            bgDark: '#09090B',       
+            card: '#18181B',         
+            borderCol: '#27272A',    
             textMuted: '#A1A1AA'
           },
           fontFamily: {
@@ -32,10 +31,8 @@
 <body class="bg-bgDark text-gray-200 min-h-screen py-8 px-4 font-sans antialiased selection:bg-brand selection:text-black">
   <div class="max-w-5xl mx-auto space-y-6">
 
-    <!-- 頂部 Header -->
     <header class="flex items-center justify-between pb-4 border-b border-borderCol">
       <div class="flex items-center gap-4">
-        <!-- 讀取新版圓形 Logo -->
         <img src="SWAG-favicon.png" alt="SWAG Logo" class="h-9 w-9 object-contain rounded-full shadow-md" onerror="this.style.display='none'">
         <div class="h-5 w-px bg-borderCol"></div>
         <h1 class="text-lg font-semibold text-gray-100 tracking-wide">
@@ -52,7 +49,6 @@
       </div>
     </header>
 
-    <!-- 診斷輸入區 -->
     <section class="bg-card rounded-xl border border-borderCol p-6 shadow-sm">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-base font-semibold text-gray-100">診斷資料輸入</h2>
@@ -62,7 +58,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-        <!-- 主播推流 -->
         <div>
           <label class="block text-xs font-medium text-textMuted mb-2">主播推流截圖</label>
           <input type="file" id="streamerFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'streamer')" />
@@ -76,7 +71,6 @@
           </div>
         </div>
 
-        <!-- 用戶拉流 -->
         <div>
           <label class="block text-xs font-medium text-textMuted mb-2">用戶拉流截圖</label>
           <input type="file" id="userFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'user')" />
@@ -91,7 +85,6 @@
         </div>
       </div>
 
-      <!-- 參數輸入 -->
       <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-borderCol">
         <div class="flex-1">
           <label class="block text-xs font-medium text-textMuted mb-1.5">用戶 ID (選填)</label>
@@ -106,7 +99,6 @@
         </div>
       </div>
 
-      <!-- 專業版分析按鈕 -->
       <button id="submitBtn" onclick="startAnalysis()" 
               class="w-full mt-5 py-2.5 rounded-md font-semibold text-brandText text-sm transition-colors bg-brand hover:bg-brandHover flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
         <svg id="btnIcon" class="w-4 h-4 hidden animate-spin text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -114,7 +106,6 @@
       </button>
     </section>
 
-    <!-- 診斷結果區 -->
     <section id="resultCard" class="hidden bg-card rounded-xl border border-borderCol p-6 shadow-sm space-y-5">
       <div class="flex items-center justify-between pb-3 border-b border-borderCol">
         <div class="flex items-center gap-3">
@@ -145,7 +136,6 @@
         </div>
       </div>
 
-      <!-- 打款指令區 -->
       <div id="commandBlock" class="hidden mt-2 bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-lg flex items-center justify-between gap-4">
         <div>
           <h3 class="text-[10px] font-bold uppercase text-emerald-500 mb-1">自動退鑽指令</h3>
@@ -238,7 +228,7 @@
       btn.disabled = true;
       btnIcon.classList.remove('hidden');
       
-      const loadingPhrases = ["上傳影像...", "解析圖表...", "判定責任...", "生成報告..."];
+      const loadingPhrases = ["上傳影像...", "檢查圖片正確性...", "解析圖表...", "判定責任...", "生成報告..."];
       let phraseIndex = 0;
       btnText.innerText = loadingPhrases[0];
       const loadingInterval = setInterval(() => {
@@ -255,6 +245,12 @@
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || '診斷失敗');
+
+        // 【防呆攔截機制】
+        if (data.isImageValid === false) {
+          alert("⚠️ 圖片上傳錯誤攔截！\n\n" + data.errorMessage);
+          return; // 終止流程，不顯示結果卡片
+        }
 
         document.getElementById('resultCard').classList.remove('hidden');
         document.getElementById('diagText').innerText = data.diagnosis;
