@@ -5,180 +5,154 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SWAG 直播推拉流品質診斷系統</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            swag: {
-              pink: '#FF2A6D',
-              dark: '#0D0F14',
-              card: '#151821',
-              cardInner: '#10131B',
-              border: '#232938'
-            }
+            brand: '#FF2A6D',
+            brandHover: '#E01E5A',
+            bgDark: '#09090B',       /* 極黑背景 */
+            card: '#18181B',         /* 沉穩深灰卡片 */
+            borderCol: '#27272A',    /* 質感邊線 */
+            textMuted: '#A1A1AA'
           },
           fontFamily: {
-            sans: ['"Plus Jakarta Sans"', '"Noto Sans TC"', 'sans-serif'],
+            sans: ['Inter', 'sans-serif'],
           }
         }
       }
     }
   </script>
 </head>
-<body class="bg-swag-dark text-gray-100 min-h-screen py-8 px-4 md:px-8 font-sans antialiased selection:bg-swag-pink selection:text-white">
+<body class="bg-bgDark text-gray-200 min-h-screen py-8 px-4 font-sans antialiased selection:bg-brand selection:text-white">
   <div class="max-w-5xl mx-auto space-y-6">
 
     <!-- 頂部 Header -->
-    <header class="flex items-center justify-between pb-2">
-      <div class="flex items-center gap-3">
-        <!-- SWAG 潮流皇冠向量標誌 -->
-        <svg class="h-9 w-auto text-swag-pink drop-shadow-[0_0_8px_rgba(255,42,109,0.6)]" viewBox="0 0 140 44" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path d="M18 4L22 10L27 3L32 10L36 4L34 14H20L18 4Z" />
-          <text x="4" y="38" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="32" letter-spacing="1.5" class="italic">SWAG</text>
-        </svg>
-        <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+    <header class="flex items-center justify-between pb-4 border-b border-borderCol">
+      <div class="flex items-center gap-4">
+        <!-- 直接讀取你上傳的圖檔 -->
+        <img src="SWAG-logo_bg_white.png" alt="SWAG Logo" class="h-8 w-auto object-contain rounded-sm" onerror="this.style.display='none'">
+        <div class="h-5 w-px bg-borderCol"></div>
+        <h1 class="text-lg font-semibold text-gray-100 tracking-wide">
           直播推拉流品質診斷系統
         </h1>
       </div>
 
-      <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#111C1D] border border-emerald-500/30 text-emerald-400 text-xs font-semibold tracking-wide shadow-sm">
-        <span>系統運作正常</span>
-        <span class="relative flex h-2 w-2">
+      <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+        <span class="relative flex h-1.5 w-1.5">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
         </span>
+        System Operational
       </div>
     </header>
 
-    <!-- 診斷輸入面板 -->
-    <section class="bg-swag-card rounded-2xl border border-swag-border p-6 shadow-xl relative overflow-hidden">
-      <div class="mb-5 flex items-center justify-between">
-        <h2 class="text-lg font-bold text-gray-200 tracking-wide flex items-center gap-2">
-          診斷輸入
-        </h2>
-        <span class="text-xs text-gray-500">支援點選框格按 <kbd class="px-2 py-0.5 bg-black/40 border border-gray-700 rounded text-gray-300">Ctrl + V</kbd> 貼上截圖</span>
+    <!-- 診斷輸入區 -->
+    <section class="bg-card rounded-xl border border-borderCol p-6 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold text-gray-100">診斷資料輸入</h2>
+        <span class="text-xs text-textMuted flex items-center gap-1">
+          支援點擊框格後按 <kbd class="px-1.5 py-0.5 bg-black border border-borderCol rounded text-gray-300 font-mono">Ctrl+V</kbd>
+        </span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-        <!-- 主播推流截圖框 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+        <!-- 主播推流 -->
         <div>
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-sm font-semibold text-gray-300">主播推流截圖</label>
-          </div>
+          <label class="block text-xs font-medium text-textMuted mb-2">主播推流截圖</label>
           <input type="file" id="streamerFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'streamer')" />
           <div id="streamerBox" tabindex="0" onclick="focusBox('streamer')"
-               class="w-full h-48 border-2 border-dashed border-gray-700/80 hover:border-swag-pink focus:border-swag-pink focus:ring-2 focus:ring-swag-pink/20 rounded-xl bg-swag-cardInner flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden relative group">
-            <img id="streamerPreview" class="hidden w-full h-full object-contain p-2" />
-            <div id="streamerPlaceholder" class="text-center p-4">
-              <div class="w-10 h-10 rounded-lg bg-gray-800/80 border border-gray-700 flex items-center justify-center mx-auto mb-2 text-gray-400 group-hover:text-swag-pink transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-              </div>
-              <p class="text-sm font-medium text-gray-300">貼上截圖 (Ctrl+V)</p>
+               class="w-full h-40 border border-dashed border-gray-600 hover:border-brand focus:border-brand focus:ring-1 focus:ring-brand rounded-lg bg-black/20 flex flex-col items-center justify-center cursor-pointer transition-colors overflow-hidden relative">
+            <img id="streamerPreview" class="hidden w-full h-full object-contain p-1" />
+            <div id="streamerPlaceholder" class="text-center text-textMuted">
+              <svg class="w-5 h-5 mx-auto mb-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+              <p class="text-xs">貼上截圖</p>
             </div>
           </div>
         </div>
 
-        <!-- 用戶拉流截圖框 -->
+        <!-- 用戶拉流 -->
         <div>
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-sm font-semibold text-gray-300">用戶拉流截圖</label>
-          </div>
+          <label class="block text-xs font-medium text-textMuted mb-2">用戶拉流截圖</label>
           <input type="file" id="userFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'user')" />
           <div id="userBox" tabindex="0" onclick="focusBox('user')"
-               class="w-full h-48 border-2 border-dashed border-gray-700/80 hover:border-white focus:border-white focus:ring-2 focus:ring-white/20 rounded-xl bg-swag-cardInner flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden relative group">
-            <img id="userPreview" class="hidden w-full h-full object-contain p-2" />
-            <div id="userPlaceholder" class="text-center p-4">
-              <div class="w-10 h-10 rounded-lg bg-gray-800/80 border border-gray-700 flex items-center justify-center mx-auto mb-2 text-gray-400 group-hover:text-white transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-              </div>
-              <p class="text-sm font-medium text-gray-300">貼上截圖 (Ctrl+V)</p>
+               class="w-full h-40 border border-dashed border-gray-600 hover:border-gray-400 focus:border-gray-400 focus:ring-1 focus:ring-gray-400 rounded-lg bg-black/20 flex flex-col items-center justify-center cursor-pointer transition-colors overflow-hidden relative">
+            <img id="userPreview" class="hidden w-full h-full object-contain p-1" />
+            <div id="userPlaceholder" class="text-center text-textMuted">
+              <svg class="w-5 h-5 mx-auto mb-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+              <p class="text-xs">貼上截圖</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 附加資訊：退鑽票價與用戶ID -->
-      <div class="mb-6 bg-swag-cardInner p-4 rounded-xl border border-swag-border/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-swag-pink/10 flex items-center justify-center text-swag-pink shrink-0">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-gray-200">用戶資訊與票價 (選填)</h3>
-            <p class="text-xs text-gray-500 mt-0.5">若需退鑽，系統將自動生成「打款指令」與客服話術</p>
-          </div>
+      <!-- 參數輸入 -->
+      <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-borderCol">
+        <div class="flex-1">
+          <label class="block text-xs font-medium text-textMuted mb-1.5">用戶 ID (選填)</label>
+          <input type="text" id="userIdInput" placeholder="輸入 ID" class="w-full bg-black/40 border border-borderCol text-gray-200 text-sm rounded-md focus:ring-1 focus:ring-brand focus:border-brand block p-2 outline-none transition">
         </div>
-        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <input type="text" id="userIdInput" placeholder="填寫用戶 ID" class="w-full sm:w-36 bg-[#0A0C10] border border-gray-700 text-white text-sm rounded-lg focus:ring-swag-pink focus:border-swag-pink block p-2.5 transition outline-none">
-          <div class="relative w-full sm:w-32">
-            <input type="number" id="ticketPriceInput" placeholder="直播票價" class="w-full bg-[#0A0C10] border border-gray-700 text-white text-sm rounded-lg focus:ring-swag-pink focus:border-swag-pink block p-2.5 pr-8 transition outline-none" min="0">
-            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-bold">鑽</span>
+        <div class="flex-1">
+          <label class="block text-xs font-medium text-textMuted mb-1.5">門票鑽石 (選填)</label>
+          <div class="relative">
+            <input type="number" id="ticketPriceInput" placeholder="例如: 500" class="w-full bg-black/40 border border-borderCol text-gray-200 text-sm rounded-md focus:ring-1 focus:ring-brand focus:border-brand block p-2 pr-8 outline-none transition" min="0">
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-textMuted text-xs font-medium">鑽</span>
           </div>
         </div>
       </div>
 
-      <!-- 發光霓虹按鈕 -->
+      <!-- 專業版分析按鈕 -->
       <button id="submitBtn" onclick="startAnalysis()" 
-              class="w-full py-4 rounded-xl font-bold text-white tracking-wide text-base transition-all transform active:scale-[0.99] bg-gradient-to-r from-swag-pink via-[#FF4A82] to-swag-pink shadow-[0_0_20px_rgba(255,42,109,0.4)] hover:shadow-[0_0_30px_rgba(255,42,109,0.6)] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
-        <span id="btnText">開始 AI 診斷</span>
-        <span id="btnIcon">🎉</span>
+              class="w-full mt-5 py-2.5 rounded-md font-medium text-white text-sm transition-colors bg-brand hover:bg-brandHover flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+        <svg id="btnIcon" class="w-4 h-4 hidden animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <span id="btnText">執行分析</span>
       </button>
     </section>
 
-    <!-- 診斷結果面板 -->
-    <section id="resultCard" class="hidden bg-swag-card rounded-2xl border border-swag-border p-6 shadow-2xl space-y-5">
-      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-swag-border/80 pb-4">
+    <!-- 診斷結果區 -->
+    <section id="resultCard" class="hidden bg-card rounded-xl border border-borderCol p-6 shadow-sm space-y-5">
+      <div class="flex items-center justify-between pb-3 border-b border-borderCol">
+        <div class="flex items-center gap-3">
+          <h2 class="text-base font-semibold text-gray-100">診斷報告</h2>
+          <span id="statusTag" class="px-2 py-0.5 rounded text-xs font-medium border"></span>
+          <span id="compensationTag" class="px-2 py-0.5 rounded text-xs font-medium border"></span>
+        </div>
+        <button onclick="copyReply()" 
+                class="flex items-center gap-1.5 bg-borderCol hover:bg-gray-700 text-gray-200 text-xs font-medium px-3 py-1.5 rounded transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+          複製回覆
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <h2 class="text-lg font-bold text-gray-200 tracking-wide mb-1">診斷結果</h2>
-          <div class="flex items-center gap-3 mt-2">
-            <span id="statusTag" class="px-3 py-1 rounded-md text-xs font-bold shadow-sm"></span>
-            <span id="compensationTag" class="px-3 py-1 rounded-md text-xs font-bold border shadow-sm"></span>
+          <h3 class="text-xs font-medium text-textMuted mb-2">技術解析</h3>
+          <div class="bg-black/20 p-4 rounded-lg border border-borderCol/50 h-full">
+            <p id="diagText" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p>
           </div>
         </div>
 
-        <button onclick="copyReply()" 
-                class="flex items-center gap-2 bg-[#1C212E] hover:bg-[#252C3D] text-gray-200 text-xs font-semibold px-4 py-2.5 rounded-lg border border-gray-700 transition">
-          <svg class="w-4 h-4 text-swag-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-          一鍵複製客服話術
-        </button>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div class="bg-swag-cardInner p-5 rounded-xl border border-swag-border/60">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-swag-pink mb-3 flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-swag-pink"></span> 技術診斷摘要
-          </h3>
-          <p id="diagText" class="text-sm text-gray-300 leading-relaxed min-h-[120px] whitespace-pre-wrap"></p>
-        </div>
-
-        <div class="bg-swag-cardInner p-5 rounded-xl border border-swag-border/60">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-gray-300 mb-3 flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-white"></span> 官方建議客服回覆
-          </h3>
-          <div id="replyText" class="text-sm text-gray-200 leading-relaxed min-h-[120px] whitespace-pre-wrap"></div>
-        </div>
-      </div>
-
-      <!-- 退鑽專屬打款指令區塊 (判定符合才會顯示) -->
-      <div id="commandBlock" class="hidden mt-2 bg-[#0A1A14] border border-emerald-500/30 p-4 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1.5 flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-            自動退鑽指令 (Slack/Discord)
-          </h3>
-          <code id="commandText" class="text-sm text-gray-300 font-mono select-all"></code>
+          <h3 class="text-xs font-medium text-textMuted mb-2">建議話術</h3>
+          <div class="bg-black/20 p-4 rounded-lg border border-borderCol/50 h-full">
+            <p id="replyText" class="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap"></p>
+          </div>
         </div>
-        <button onclick="copyCommand()" class="shrink-0 flex items-center gap-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-xs font-bold px-4 py-2.5 rounded-lg transition border border-emerald-500/50">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+      </div>
+
+      <!-- 打款指令區 -->
+      <div id="commandBlock" class="hidden mt-2 bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-lg flex items-center justify-between gap-4">
+        <div>
+          <h3 class="text-[10px] font-bold uppercase text-emerald-500 mb-1">自動退鑽指令</h3>
+          <code id="commandText" class="text-sm text-emerald-100 font-mono select-all"></code>
+        </div>
+        <button onclick="copyCommand()" class="shrink-0 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-medium px-3 py-1.5 rounded transition">
           複製指令
         </button>
       </div>
-
     </section>
   </div>
 
@@ -186,9 +160,7 @@
     let images = { streamer: null, user: null };
     let currentTarget = 'streamer';
 
-    function focusBox(target) {
-      currentTarget = target;
-    }
+    function focusBox(target) { currentTarget = target; }
 
     function compressImage(dataUrl, maxWidth = 1200) {
       return new Promise((resolve) => {
@@ -196,16 +168,12 @@
         img.src = dataUrl;
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          
+          let width = img.width, height = img.height;
           if (width > maxWidth) {
             height = Math.round((height * maxWidth) / width);
             width = maxWidth;
           }
-          
-          canvas.width = width;
-          canvas.height = height;
+          canvas.width = width; canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
           resolve(canvas.toDataURL('image/jpeg', 0.8));
@@ -217,8 +185,7 @@
       const items = (e.clipboardData || e.originalEvent.clipboardData).items;
       for (const item of items) {
         if (item.type.indexOf('image') !== -1) {
-          const file = item.getAsFile();
-          handleFileSelect(file, currentTarget);
+          handleFileSelect(item.getAsFile(), currentTarget);
           if (currentTarget === 'streamer') {
             document.getElementById('userBox').focus();
             currentTarget = 'user';
@@ -231,29 +198,16 @@
     ['streamerBox', 'userBox'].forEach((boxId) => {
       const box = document.getElementById(boxId);
       const target = boxId === 'streamerBox' ? 'streamer' : 'user';
-
-      box.addEventListener('dragover', (e) => { 
-        e.preventDefault(); 
-        box.classList.add('border-swag-pink', 'bg-swag-pink/5');
-      });
-      box.addEventListener('dragleave', (e) => { 
-        e.preventDefault(); 
-        box.classList.remove('border-swag-pink', 'bg-swag-pink/5');
-      });
+      box.addEventListener('dragover', (e) => { e.preventDefault(); box.classList.add('border-gray-400'); });
+      box.addEventListener('dragleave', (e) => { e.preventDefault(); box.classList.remove('border-gray-400'); });
       box.addEventListener('drop', (e) => {
-        e.preventDefault();
-        box.classList.remove('border-swag-pink', 'bg-swag-pink/5');
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        e.preventDefault(); box.classList.remove('border-gray-400');
+        if (e.dataTransfer.files[0]) {
           handleFileSelect(e.dataTransfer.files[0], target);
-          if (target === 'streamer') {
-            document.getElementById('userBox').focus();
-            currentTarget = 'user';
-          }
+          if (target === 'streamer') { document.getElementById('userBox').focus(); currentTarget = 'user'; }
         }
       });
-      box.addEventListener('dblclick', () => {
-        document.getElementById(target + 'File').click();
-      });
+      box.addEventListener('dblclick', () => document.getElementById(target + 'File').click());
     });
 
     function handleFileSelect(file, target) {
@@ -264,17 +218,13 @@
         img.src = e.target.result;
         img.classList.remove('hidden');
         document.getElementById(`${target}Placeholder`).classList.add('hidden');
-        
         images[target] = await compressImage(e.target.result);
       };
       reader.readAsDataURL(file);
     }
 
     async function startAnalysis() {
-      if (!images.streamer || !images.user) {
-        alert('請先貼上或上傳「主播推流」與「用戶拉流」兩張截圖！');
-        return;
-      }
+      if (!images.streamer || !images.user) return alert('請貼上主客雙方截圖！');
 
       const btn = document.getElementById('submitBtn');
       const btnText = document.getElementById('btnText');
@@ -284,29 +234,25 @@
       const ticketPrice = document.getElementById('ticketPriceInput').value.trim();
 
       btn.disabled = true;
-      btnIcon.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+      btnIcon.classList.remove('hidden');
       
-      const loadingPhrases = ["圖片最佳化上傳中...", "AI 視覺讀取數據...", "技術指標交叉比對...", "判定責任歸屬...", "為您撰寫專屬客服話術..."];
+      const loadingPhrases = ["上傳影像...", "解析圖表...", "判定責任...", "生成報告..."];
       let phraseIndex = 0;
       btnText.innerText = loadingPhrases[0];
       const loadingInterval = setInterval(() => {
         phraseIndex = (phraseIndex + 1) % loadingPhrases.length;
         btnText.innerText = loadingPhrases[phraseIndex];
-      }, 2000);
+      }, 1500);
 
       try {
         const res = await fetch('/api/diagnose', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            streamerImage: images.streamer,
-            userImage: images.user,
-            ticketPrice: ticketPrice 
-          })
+          body: JSON.stringify({ streamerImage: images.streamer, userImage: images.user, ticketPrice })
         });
 
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || '診斷發生錯誤');
+        if (!res.ok) throw new Error(data.error || '診斷失敗');
 
         document.getElementById('resultCard').classList.remove('hidden');
         document.getElementById('diagText').innerText = data.diagnosis;
@@ -317,64 +263,47 @@
         const commandText = document.getElementById('commandText');
 
         if (data.isEligibleForCompensation) {
-          compTag.innerText = '✓ 符合退補償';
-          compTag.className = 'px-3 py-1 rounded-md text-xs font-bold border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shadow-sm';
-          
-          // 如果符合退補償，顯示打款指令區塊
-          const displayId = userId || '{用戶ID}';
-          const displayPrice = ticketPrice || '{票價}';
-          commandText.innerText = `@bot-allan deposit ${displayId}/${displayPrice} cs:comp_livestream_表演異常`;
+          compTag.innerText = '✓ 需補償';
+          compTag.className = 'px-2 py-0.5 rounded text-xs font-medium border border-emerald-500/30 bg-emerald-500/10 text-emerald-400';
+          commandText.innerText = `@bot-allan deposit ${userId || '{ID}'}/${ticketPrice || '{票價}'} cs:comp_livestream_表演異常`;
           commandBlock.classList.remove('hidden');
         } else {
-          compTag.innerText = '✕ 不符合補償條件';
-          compTag.className = 'px-3 py-1 rounded-md text-xs font-bold border border-swag-pink/30 bg-swag-pink/10 text-swag-pink shadow-sm';
-          
-          // 如果不符合退補償，隱藏打款指令區塊
+          compTag.innerText = '✕ 不補償';
+          compTag.className = 'px-2 py-0.5 rounded text-xs font-medium border border-gray-600 bg-gray-800 text-gray-300';
           commandBlock.classList.add('hidden');
         }
 
         const statusTag = document.getElementById('statusTag');
-        statusTag.innerText = data.faultSide === 'streamer' ? '⚠️ 主播端/平台異常' : '📱 用戶本機/網路異常';
-        statusTag.className = 'px-3 py-1 rounded-md text-xs font-bold bg-white text-black shadow-sm';
+        statusTag.innerText = data.faultSide === 'streamer' ? '主播異常' : '用戶異常';
+        statusTag.className = 'px-2 py-0.5 rounded text-xs font-medium border border-brand/30 bg-brand/10 text-brand';
 
         document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
-
       } catch (err) {
-        alert('診斷請求失敗：' + err.message);
+        alert(err.message);
       } finally {
         clearInterval(loadingInterval);
-        btnText.innerText = '開始 AI 診斷';
-        btnIcon.innerHTML = '🎉';
+        btnText.innerText = '執行分析';
+        btnIcon.classList.add('hidden');
         btn.disabled = false;
       }
     }
 
     function copyReply() {
-      const text = document.getElementById('replyText').innerText;
-      navigator.clipboard.writeText(text);
-      
+      navigator.clipboard.writeText(document.getElementById('replyText').innerText);
       const btn = event.currentTarget;
-      const originalHtml = btn.innerHTML;
-      btn.innerHTML = `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 已複製！`;
-      btn.classList.add('border-emerald-500/50', 'text-emerald-400');
-      
-      setTimeout(() => {
-        btn.innerHTML = originalHtml;
-        btn.classList.remove('border-emerald-500/50', 'text-emerald-400');
-      }, 2000);
+      const oldHtml = btn.innerHTML;
+      btn.innerHTML = '已複製';
+      btn.classList.add('bg-emerald-600');
+      setTimeout(() => { btn.innerHTML = oldHtml; btn.classList.remove('bg-emerald-600'); }, 1500);
     }
 
     function copyCommand() {
-      const text = document.getElementById('commandText').innerText;
-      navigator.clipboard.writeText(text);
-      
+      navigator.clipboard.writeText(document.getElementById('commandText').innerText);
       const btn = event.currentTarget;
-      const originalHtml = btn.innerHTML;
-      btn.innerHTML = `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 複製成功`;
-      
-      setTimeout(() => {
-        btn.innerHTML = originalHtml;
-      }, 2000);
+      const oldHtml = btn.innerHTML;
+      btn.innerHTML = '已複製';
+      btn.classList.add('bg-emerald-500', 'text-white');
+      setTimeout(() => { btn.innerHTML = oldHtml; btn.classList.remove('bg-emerald-500', 'text-white'); }, 1500);
     }
   </script>
 </body>
