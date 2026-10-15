@@ -58,7 +58,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-        <!-- 主播推流 -->
         <div>
           <label class="block text-xs font-medium text-textMuted mb-2">主播推流截圖</label>
           <input type="file" id="streamerFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'streamer')" />
@@ -66,7 +65,6 @@
                class="w-full h-40 border border-dashed border-gray-600 hover:border-brand focus:border-brand focus:ring-1 focus:ring-brand rounded-lg bg-black/20 flex flex-col items-center justify-center cursor-pointer transition-colors overflow-hidden relative">
             <img id="streamerPreview" class="hidden w-full h-full object-contain p-1" />
             
-            <!-- 秒速檢查遮罩 -->
             <div id="streamerChecking" class="absolute inset-0 bg-bgDark/80 flex flex-col items-center justify-center text-brand hidden backdrop-blur-sm z-10">
               <svg class="animate-spin h-6 w-6 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
               <span class="text-xs font-medium tracking-wider">AI 防呆檢查中...</span>
@@ -79,7 +77,6 @@
           </div>
         </div>
 
-        <!-- 用戶拉流 -->
         <div>
           <label class="block text-xs font-medium text-textMuted mb-2">用戶拉流截圖</label>
           <input type="file" id="userFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'user')" />
@@ -87,7 +84,6 @@
                class="w-full h-40 border border-dashed border-gray-600 hover:border-gray-400 focus:border-gray-400 focus:ring-1 focus:ring-gray-400 rounded-lg bg-black/20 flex flex-col items-center justify-center cursor-pointer transition-colors overflow-hidden relative">
             <img id="userPreview" class="hidden w-full h-full object-contain p-1" />
 
-            <!-- 秒速檢查遮罩 -->
             <div id="userChecking" class="absolute inset-0 bg-bgDark/80 flex flex-col items-center justify-center text-gray-300 hidden backdrop-blur-sm z-10">
               <svg class="animate-spin h-6 w-6 mb-2 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
               <span class="text-xs font-medium tracking-wider">AI 防呆檢查中...</span>
@@ -222,12 +218,10 @@
         img.classList.remove('hidden');
         document.getElementById(`${target}Placeholder`).classList.add('hidden');
         
-        // 顯示檢查遮罩
         const checkOverlay = document.getElementById(`${target}Checking`);
         checkOverlay.classList.remove('hidden');
 
         try {
-          // 壓縮成低畫質讓 AI 快速檢查
           const quickCompressData = await compressImage(e.target.result, 800); 
           
           const res = await fetch('/api/diagnose', {
@@ -239,36 +233,30 @@
           const data = await res.json();
           
           if (data.type && data.type !== target && data.type !== 'unknown') {
-            // AI 發現貼反了！
             const targetName = target === 'streamer' ? '主播推流' : '用戶拉流';
             const detectedName = data.type === 'streamer' ? '主播推流' : '用戶拉流';
             
             alert(`⚠️ 貼錯格啦！\n這格應該是「${targetName}」，但您貼的看起來像是「${detectedName}」截圖，請對調後重新貼上。`);
             
-            // 清空該格子
             img.src = '';
             img.classList.add('hidden');
             document.getElementById(`${target}Placeholder`).classList.remove('hidden');
             images[target] = null;
           } else {
-            // 檢查通過，存入高畫質圖片供後續診斷
             images[target] = await compressImage(e.target.result, 1200);
-            
-            // 貼對了，自動跳到下一格
             if (target === 'streamer') { 
               document.getElementById('userBox').focus(); 
               currentTarget = 'user'; 
             }
           }
         } catch (err) {
-          // 若檢查中斷，直接放行 (當作通過)
           images[target] = await compressImage(e.target.result, 1200);
           if (target === 'streamer') { 
             document.getElementById('userBox').focus(); 
             currentTarget = 'user'; 
           }
         } finally {
-          checkOverlay.classList.add('hidden'); // 隱藏遮罩
+          checkOverlay.classList.add('hidden');
         }
       };
       reader.readAsDataURL(file);
@@ -319,14 +307,22 @@
           commandText.innerText = `@bot-allan deposit ${userId || '{ID}'}/${ticketPrice || '{票價}'} cs:comp_livestream_表演異常`;
           commandBlock.classList.remove('hidden');
         } else {
-          compTag.innerText = '✕ 不補償';
+          compTag.innerText = '✕ 不需補償';
           compTag.className = 'px-2 py-0.5 rounded text-xs font-medium border border-gray-600 bg-gray-800 text-gray-300';
           commandBlock.classList.add('hidden');
         }
 
         const statusTag = document.getElementById('statusTag');
-        statusTag.innerText = data.faultSide === 'streamer' ? '主播異常' : '用戶異常';
-        statusTag.className = 'px-2 py-0.5 rounded text-xs font-medium border border-brand/30 bg-brand/10 text-brand text-opacity-90';
+        if (data.faultSide === 'streamer') {
+          statusTag.innerText = '主播異常';
+          statusTag.className = 'px-2 py-0.5 rounded text-xs font-medium border border-rose-500/30 bg-rose-500/10 text-rose-400';
+        } else if (data.faultSide === 'user') {
+          statusTag.innerText = '用戶異常';
+          statusTag.className = 'px-2 py-0.5 rounded text-xs font-medium border border-amber-500/30 bg-amber-500/10 text-amber-400';
+        } else {
+          statusTag.innerText = '雙端正常';
+          statusTag.className = 'px-2 py-0.5 rounded text-xs font-medium border border-emerald-500/30 bg-emerald-500/10 text-emerald-400';
+        }
 
         document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
       } catch (err) {
