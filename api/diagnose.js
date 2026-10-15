@@ -2,6 +2,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+export const maxDuration = 60; // 允許較長的 Vercel 處理時間，避免超時中斷
+
 export const config = {
   api: {
     bodyParser: {
@@ -16,7 +18,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { streamerImage, userImage } = req.body;
+    const { streamerImage, userImage, ticketPrice } = req.body;
 
     if (!streamerImage || !userImage) {
       return res.status(400).json({ error: '請提供主播與用戶的截圖' });
@@ -36,9 +38,17 @@ export default async function handler(req, res) {
       base64ToGenerativePart(userImage)
     ];
 
+    // 動態加入票價資訊判斷
+    const ticketCondition = ticketPrice && ticketPrice.trim() !== '' 
+      ? `用戶本次有輸入直播門票金額為：「${ticketPrice} 鑽」。` 
+      : `用戶未提供直播門票金額。`;
+
     const prompt = `
 你是一位具備多年音視頻直播技術與客服經驗的「直播串流品質診斷專家」。
 我上傳了兩張圖片：第一張是「主播端推流」，第二張是「用戶端拉流」。
+
+【附加資訊】
+${ticketCondition}
 
 【核心評估指標】
 - 碼率（Bitrate / kbps）：是否存在斷崖式下跌或劇烈跳動。
@@ -46,9 +56,11 @@ export default async function handler(req, res) {
 - 丟包率（Packet Loss）：推流端 > 2-3% 即可能造成全體卡頓；拉流端丟包代表用戶本地網路不穩。
 - 渲染丟幀（Render Drop）：若網路充足但畫面掉幀，通常是用戶手機 CPU/GPU 降頻（省電模式/過熱保護）。
 
-【責任歸屬與補償原則】
+【責任歸屬與話術補償原則】(非常重要)
 1. 主播推流異常：判定為平台/主播端責任 -> 符合退鑽補償。
-2. 主播推流正常、用戶拉流異常：判定為用戶本地網路或設備因素 -> 嚴格不予補償，僅提供排障建議。
+   *若上方【附加資訊】有提供門票金額，請務必在回覆話術中加入安撫語句，明確寫出「我們將退還您本次扣除的 ${ticketPrice || 'X'} 鑽石」。若沒提供金額則一般安撫即可。
+2. 主播推流正常、用戶拉流異常：判定為用戶本地網路或設備因素 -> 嚴格不予補償。
+   *話術中「絕對不可提及任何退鑽或金額」，僅提供網路檢查、關閉省電模式等排障建議。
 3. 兩者皆正常或資訊不足：說明為瞬斷，請用戶提供具體時間點。
 
 請務必以 JSON 格式回傳，格式如下：
@@ -56,10 +68,9 @@ export default async function handler(req, res) {
   "faultSide": "streamer",
   "isEligibleForCompensation": true,
   "diagnosis": "這裡填寫技術診斷摘要",
-  "replyScript": "這裡填寫給用戶的客服回覆話術（語氣親切，若不補償要提供省電模式、避免邊充邊看等排障建議）"
+  "replyScript": "這裡填寫給用戶的客服回覆話術"
 }`;
 
-    // 切換為最新支援的 gemini-2.5-flash
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const result = await model.generateContent([prompt, ...imageParts]);
     const responseText = result.response.text();
