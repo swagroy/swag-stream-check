@@ -12,8 +12,10 @@
       theme: {
         extend: {
           colors: {
-            brand: '#FF2A6D',
-            brandHover: '#E01E5A',
+            /* 配合新 Logo 的專屬蒂芬妮綠色系 */
+            brand: '#12E5B6',       
+            brandHover: '#0DAA87',
+            brandText: '#000000',   
             bgDark: '#09090B',       /* 極黑背景 */
             card: '#18181B',         /* 沉穩深灰卡片 */
             borderCol: '#27272A',    /* 質感邊線 */
@@ -27,14 +29,14 @@
     }
   </script>
 </head>
-<body class="bg-bgDark text-gray-200 min-h-screen py-8 px-4 font-sans antialiased selection:bg-brand selection:text-white">
+<body class="bg-bgDark text-gray-200 min-h-screen py-8 px-4 font-sans antialiased selection:bg-brand selection:text-black">
   <div class="max-w-5xl mx-auto space-y-6">
 
     <!-- 頂部 Header -->
     <header class="flex items-center justify-between pb-4 border-b border-borderCol">
       <div class="flex items-center gap-4">
-        <!-- 直接讀取你上傳的圖檔 -->
-        <img src="SWAG-logo_bg_white.png" alt="SWAG Logo" class="h-8 w-auto object-contain rounded-sm" onerror="this.style.display='none'">
+        <!-- 讀取新版圓形 Logo -->
+        <img src="SWAG-favicon.png" alt="SWAG Logo" class="h-9 w-9 object-contain rounded-full shadow-md" onerror="this.style.display='none'">
         <div class="h-5 w-px bg-borderCol"></div>
         <h1 class="text-lg font-semibold text-gray-100 tracking-wide">
           直播推拉流品質診斷系統
@@ -106,8 +108,8 @@
 
       <!-- 專業版分析按鈕 -->
       <button id="submitBtn" onclick="startAnalysis()" 
-              class="w-full mt-5 py-2.5 rounded-md font-medium text-white text-sm transition-colors bg-brand hover:bg-brandHover flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-        <svg id="btnIcon" class="w-4 h-4 hidden animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              class="w-full mt-5 py-2.5 rounded-md font-semibold text-brandText text-sm transition-colors bg-brand hover:bg-brandHover flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+        <svg id="btnIcon" class="w-4 h-4 hidden animate-spin text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
         <span id="btnText">執行分析</span>
       </button>
     </section>
@@ -198,10 +200,10 @@
     ['streamerBox', 'userBox'].forEach((boxId) => {
       const box = document.getElementById(boxId);
       const target = boxId === 'streamerBox' ? 'streamer' : 'user';
-      box.addEventListener('dragover', (e) => { e.preventDefault(); box.classList.add('border-gray-400'); });
-      box.addEventListener('dragleave', (e) => { e.preventDefault(); box.classList.remove('border-gray-400'); });
+      box.addEventListener('dragover', (e) => { e.preventDefault(); box.classList.add('border-brand'); });
+      box.addEventListener('dragleave', (e) => { e.preventDefault(); box.classList.remove('border-brand'); });
       box.addEventListener('drop', (e) => {
-        e.preventDefault(); box.classList.remove('border-gray-400');
+        e.preventDefault(); box.classList.remove('border-brand');
         if (e.dataTransfer.files[0]) {
           handleFileSelect(e.dataTransfer.files[0], target);
           if (target === 'streamer') { document.getElementById('userBox').focus(); currentTarget = 'user'; }
@@ -275,7 +277,7 @@
 
         const statusTag = document.getElementById('statusTag');
         statusTag.innerText = data.faultSide === 'streamer' ? '主播異常' : '用戶異常';
-        statusTag.className = 'px-2 py-0.5 rounded text-xs font-medium border border-brand/30 bg-brand/10 text-brand';
+        statusTag.className = 'px-2 py-0.5 rounded text-xs font-medium border border-brand/30 bg-brand/10 text-brand text-opacity-90';
 
         document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
       } catch (err) {
@@ -293,8 +295,8 @@
       const btn = event.currentTarget;
       const oldHtml = btn.innerHTML;
       btn.innerHTML = '已複製';
-      btn.classList.add('bg-emerald-600');
-      setTimeout(() => { btn.innerHTML = oldHtml; btn.classList.remove('bg-emerald-600'); }, 1500);
+      btn.classList.add('bg-brand', 'text-black');
+      setTimeout(() => { btn.innerHTML = oldHtml; btn.classList.remove('bg-brand', 'text-black'); }, 1500);
     }
 
     function copyCommand() {
@@ -302,8 +304,8 @@
       const btn = event.currentTarget;
       const oldHtml = btn.innerHTML;
       btn.innerHTML = '已複製';
-      btn.classList.add('bg-emerald-500', 'text-white');
-      setTimeout(() => { btn.innerHTML = oldHtml; btn.classList.remove('bg-emerald-500', 'text-white'); }, 1500);
+      btn.classList.add('bg-emerald-500', 'text-black');
+      setTimeout(() => { btn.innerHTML = oldHtml; btn.classList.remove('bg-emerald-500', 'text-black'); }, 1500);
     }
   </script>
 </body>
