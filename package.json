@@ -5,6 +5,6 @@
     "start": "node api/diagnose.js"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.2.0"
+    "@google/generative-ai": "^0.21.0"
   }
 }
