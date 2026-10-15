@@ -1,0 +1,10 @@
+{
+  "name": "swag-stream-check",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node api/diagnose.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.2.0"
+  }
+}
