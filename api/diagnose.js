@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-export const maxDuration = 60; // 允許較長的 Vercel 處理時間，避免超時中斷
+export const maxDuration = 60; 
 
 export const config = {
   api: {
@@ -38,7 +38,6 @@ export default async function handler(req, res) {
       base64ToGenerativePart(userImage)
     ];
 
-    // 動態加入票價資訊判斷
     const ticketCondition = ticketPrice && ticketPrice.trim() !== '' 
       ? `用戶本次有輸入直播門票金額為：「${ticketPrice} 鑽」。` 
       : `用戶未提供直播門票金額。`;
@@ -56,11 +55,16 @@ ${ticketCondition}
 - 丟包率（Packet Loss）：推流端 > 2-3% 即可能造成全體卡頓；拉流端丟包代表用戶本地網路不穩。
 - 渲染丟幀（Render Drop）：若網路充足但畫面掉幀，通常是用戶手機 CPU/GPU 降頻（省電模式/過熱保護）。
 
-【責任歸屬與話術補償原則】(非常重要)
+【客服話術撰寫規範】(非常重要，請嚴格遵守)
+1. 開頭稱呼：一律使用「您好，」開頭即可，絕對不要寫「親愛的用戶您好」這種過於制式的詞。
+2. 語氣與用詞：直接說明數據查詢的結果，絕對不要說「經我們專業的直播串流品質診斷」這種自誇或過於技術感的贅字。說明簡單扼要、親切自然即可。
+3. 如果判斷是主播端的問題，明確告知是在哪個時間點確認到網路或設備異常。
+
+【責任歸屬與補償邏輯】
 1. 主播推流異常：判定為平台/主播端責任 -> 符合退鑽補償。
-   *若上方【附加資訊】有提供門票金額，請務必在回覆話術中加入安撫語句，明確寫出「我們將退還您本次扣除的 ${ticketPrice || 'X'} 鑽石」。若沒提供金額則一般安撫即可。
+   *若上方【附加資訊】有提供門票金額，請在話術中自然地帶入「我們將為您退還本次扣除的 ${ticketPrice || 'X'} 鑽石」。
 2. 主播推流正常、用戶拉流異常：判定為用戶本地網路或設備因素 -> 嚴格不予補償。
-   *話術中「絕對不可提及任何退鑽或金額」，僅提供網路檢查、關閉省電模式等排障建議。
+   *話術中「絕對不可提及任何退款、退鑽或金額」，僅提供網路檢查、關閉省電模式等排障建議。
 3. 兩者皆正常或資訊不足：說明為瞬斷，請用戶提供具體時間點。
 
 請務必以 JSON 格式回傳，格式如下：
@@ -68,7 +72,7 @@ ${ticketCondition}
   "faultSide": "streamer",
   "isEligibleForCompensation": true,
   "diagnosis": "這裡填寫技術診斷摘要",
-  "replyScript": "這裡填寫給用戶的客服回覆話術"
+  "replyScript": "這裡依照【客服話術撰寫規範】填寫給用戶的客服回覆"
 }`;
 
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
