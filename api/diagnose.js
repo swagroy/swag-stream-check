@@ -29,7 +29,6 @@ export default async function handler(req, res) {
       };
     }
 
-    // 單圖快速防呆
     if (mode === 'quick_check' && singleImage) {
       const prompt = `這張截圖是直播推拉流數據。請看圖片文字與標籤，告訴我它是「主播推流端」還是「用戶拉流端」？
       特徵提示：
@@ -63,16 +62,16 @@ export default async function handler(req, res) {
 【附加資訊】
 ${ticketCondition}
 
-【指標正常 vs 異常的嚴格判斷準則】(極重要，請勿過度診斷)
+【指標正常 vs 異常的嚴格判斷準則】
 1. 碼率（Bitrate）：視訊動態編碼（VBR）在 1500~2500 kbps 之間的波浪起伏屬於「完全正常的物理動態現象」，非異常。只有發生「斷崖式驟降（跌破 500 kbps 甚至歸零）」才算異常。
 2. 推流丟包（Packet Loss）：推流端紅色柱狀丟包率為 0 或小於 2% 時，代表推流端網路極佳，絕對正常。
 3. 拉流凍結（Freeze time）：拉流端若無柱狀飆高（維持在 0 或底線），代表用戶觀看沒有系統性卡頓。
 4. 【雙端正常判定】：若主播端丟包率為 0，且用戶端無明顯凍結時間（Freeze time），即便碼率有正常微幅波動，也必須判定為「雙端正常（faultSide: "normal"）」，此時「嚴禁退鑽」。
 
-【責任歸屬與補償邏輯】
+【責任歸屬與補償邏輯】(非常重要，請嚴格遵守)
 1. faultSide = "streamer"（主播責任）：主播端丟包率 > 2-3% 或碼率斷崖式崩跌。符合退鑽（isEligibleForCompensation = true）。話術說明在具體時間點有推流異常，並退還 ${ticketPrice || 'X'} 鑽石。
-2. faultSide = "user"（用戶責任）：主播推流極度穩定正常，但用戶端 Freeze time 飆高或用戶端丟包嚴重。不予退鑽（isEligibleForCompensation = false），提供排障建議。
-3. faultSide = "normal"（雙端皆正常）：雙端數據良好無丟包無凍結。不予退鑽（isEligibleForCompensation = false）。客服話術告知目前查閱數據，推流與拉流品質皆十分穩定，請用戶提供更精確的卡頓時間點以利複查。
+2. faultSide = "user"（用戶責任）：主播推流極度穩定正常，但用戶端 Freeze time 飆高或用戶端丟包嚴重。不予退鑽（isEligibleForCompensation = false），請用戶檢查自身網路並提供排障建議。
+3. faultSide = "normal"（雙端皆正常）：雙端數據良好無丟包無凍結。不予退鑽（isEligibleForCompensation = false）。客服話術應告知「目前查詢系統推拉流數據皆正常」，但既然用戶有感受到卡頓，請務必主動提供簡易排障建議（如：切換網路環境、關閉省電模式、清除背景程式等）。
 
 請務必以 JSON 格式回傳：
 {
