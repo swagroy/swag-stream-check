@@ -29,9 +29,9 @@ export default async function handler(req, res) {
       };
     }
 
-    // 【模式一：貼上瞬間的單圖「秒速防呆」辨識】
+    // 單圖快速防呆
     if (mode === 'quick_check' && singleImage) {
-      const prompt = `這張截圖是直播推拉流數據。請看圖片左上角的標籤，告訴我它是「主播推流端」還是「用戶拉流端」？
+      const prompt = `這張截圖是直播推拉流數據。請看圖片文字與標籤，告訴我它是「主播推流端」還是「用戶拉流端」？
       特徵提示：
       - 推流端：圖片文字包含 Sender's view, Video upstream pack 等
       - 拉流端：圖片文字包含 Audience, Receiver's view, Freeze time 等
@@ -43,7 +43,6 @@ export default async function handler(req, res) {
       return res.status(200).json(JSON.parse(cleanedText));
     }
 
-    // 【模式二：按下按鈕的「深度分析」】
     if (!streamerImage || !userImage) {
       return res.status(400).json({ error: '請提供主播與用戶的截圖' });
     }
@@ -56,32 +55,31 @@ export default async function handler(req, res) {
 你是一位具備多年音視頻直播技術與客服經驗的「直播串流品質診斷專家」。
 我上傳了兩張圖片：第一張是「主播端推流」，第二張是「用戶端拉流」。
 
-【全域語言與排版限制】(極度重要)
+【全域語言與排版限制】
 1. 語言強制：所有輸出內容必須 100% 使用「繁體中文 (zh-TW)」。
 2. 排版強制：「技術診斷」與「客服回覆」都請保持最緊湊的排版，絕對不要產生「空白行」(禁止連續兩次換行)。
-3. 若需提供排障建議，請直接合併成一個完整的段落，使用頓號或分號分隔即可，絕對禁止使用「1. 2. 3.」做條列式換行。
+3. 若需提供排障建議，請直接合併成一個完整的段落，使用頓號或分號分隔，禁止使用「1. 2. 3.」條列式換行。
 
 【附加資訊】
 ${ticketCondition}
 
-【客服話術撰寫規範】
-1. 開頭稱呼：一律使用「您好，」開頭。
-2. 語氣與用詞：直接說明數據結果，簡單扼要。
-3. 若判斷是主播端的問題，明確告知是在哪個時間點確認到異常。
+【指標正常 vs 異常的嚴格判斷準則】(極重要，請勿過度診斷)
+1. 碼率（Bitrate）：視訊動態編碼（VBR）在 1500~2500 kbps 之間的波浪起伏屬於「完全正常的物理動態現象」，非異常。只有發生「斷崖式驟降（跌破 500 kbps 甚至歸零）」才算異常。
+2. 推流丟包（Packet Loss）：推流端紅色柱狀丟包率為 0 或小於 2% 時，代表推流端網路極佳，絕對正常。
+3. 拉流凍結（Freeze time）：拉流端若無柱狀飆高（維持在 0 或底線），代表用戶觀看沒有系統性卡頓。
+4. 【雙端正常判定】：若主播端丟包率為 0，且用戶端無明顯凍結時間（Freeze time），即便碼率有正常微幅波動，也必須判定為「雙端正常（faultSide: "normal"）」，此時「嚴禁退鑽」。
 
 【責任歸屬與補償邏輯】
-1. 主播推流異常：判定為平台/主播端責任 -> 符合退鑽補償。
-   *若有提供門票金額，請帶入「我們將為您退還本次扣除的 ${ticketPrice || 'X'} 鑽石」。
-2. 主播推流正常、用戶拉流異常：判定為用戶本地因素 -> 嚴格不予補償。
-   *話術中「絕對不可提及任何退款或金額」，僅提供排障建議。
-3. 兩者皆正常或資訊不足：說明為瞬斷，請用戶提供具體時間點。
+1. faultSide = "streamer"（主播責任）：主播端丟包率 > 2-3% 或碼率斷崖式崩跌。符合退鑽（isEligibleForCompensation = true）。話術說明在具體時間點有推流異常，並退還 ${ticketPrice || 'X'} 鑽石。
+2. faultSide = "user"（用戶責任）：主播推流極度穩定正常，但用戶端 Freeze time 飆高或用戶端丟包嚴重。不予退鑽（isEligibleForCompensation = false），提供排障建議。
+3. faultSide = "normal"（雙端皆正常）：雙端數據良好無丟包無凍結。不予退鑽（isEligibleForCompensation = false）。客服話術告知目前查閱數據，推流與拉流品質皆十分穩定，請用戶提供更精確的卡頓時間點以利複查。
 
-請務必以 JSON 格式回傳，格式如下：
+請務必以 JSON 格式回傳：
 {
-  "faultSide": "streamer",
-  "isEligibleForCompensation": true,
+  "faultSide": "streamer" | "user" | "normal",
+  "isEligibleForCompensation": true 或 false,
   "diagnosis": "請填寫繁體中文技術診斷摘要",
-  "replyScript": "請填寫繁體中文客服回覆，不可有空白行，排障建議請寫成同一段"
+  "replyScript": "請填寫繁體中文客服回覆"
 }`;
 
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
@@ -91,7 +89,6 @@ ${ticketCondition}
     let cleanedText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
     const parsedData = JSON.parse(cleanedText);
 
-    // 強制壓扁空白行
     if (parsedData.replyScript) parsedData.replyScript = parsedData.replyScript.replace(/\n\s*\n/g, '\n');
     if (parsedData.diagnosis) parsedData.diagnosis = parsedData.diagnosis.replace(/\n\s*\n/g, '\n');
 
