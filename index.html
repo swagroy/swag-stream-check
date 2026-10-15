@@ -58,28 +58,44 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+        <!-- 主播推流 -->
         <div>
           <label class="block text-xs font-medium text-textMuted mb-2">主播推流截圖</label>
           <input type="file" id="streamerFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'streamer')" />
           <div id="streamerBox" tabindex="0" onclick="focusBox('streamer')"
                class="w-full h-40 border border-dashed border-gray-600 hover:border-brand focus:border-brand focus:ring-1 focus:ring-brand rounded-lg bg-black/20 flex flex-col items-center justify-center cursor-pointer transition-colors overflow-hidden relative">
             <img id="streamerPreview" class="hidden w-full h-full object-contain p-1" />
+            
+            <!-- 秒速檢查遮罩 -->
+            <div id="streamerChecking" class="absolute inset-0 bg-bgDark/80 flex flex-col items-center justify-center text-brand hidden backdrop-blur-sm z-10">
+              <svg class="animate-spin h-6 w-6 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              <span class="text-xs font-medium tracking-wider">AI 防呆檢查中...</span>
+            </div>
+
             <div id="streamerPlaceholder" class="text-center text-textMuted">
               <svg class="w-5 h-5 mx-auto mb-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-              <p class="text-xs">貼上截圖</p>
+              <p class="text-xs">貼上推流截圖</p>
             </div>
           </div>
         </div>
 
+        <!-- 用戶拉流 -->
         <div>
           <label class="block text-xs font-medium text-textMuted mb-2">用戶拉流截圖</label>
           <input type="file" id="userFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'user')" />
           <div id="userBox" tabindex="0" onclick="focusBox('user')"
                class="w-full h-40 border border-dashed border-gray-600 hover:border-gray-400 focus:border-gray-400 focus:ring-1 focus:ring-gray-400 rounded-lg bg-black/20 flex flex-col items-center justify-center cursor-pointer transition-colors overflow-hidden relative">
             <img id="userPreview" class="hidden w-full h-full object-contain p-1" />
+
+            <!-- 秒速檢查遮罩 -->
+            <div id="userChecking" class="absolute inset-0 bg-bgDark/80 flex flex-col items-center justify-center text-gray-300 hidden backdrop-blur-sm z-10">
+              <svg class="animate-spin h-6 w-6 mb-2 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              <span class="text-xs font-medium tracking-wider">AI 防呆檢查中...</span>
+            </div>
+
             <div id="userPlaceholder" class="text-center text-textMuted">
               <svg class="w-5 h-5 mx-auto mb-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-              <p class="text-xs">貼上截圖</p>
+              <p class="text-xs">貼上拉流截圖</p>
             </div>
           </div>
         </div>
@@ -178,10 +194,6 @@
       for (const item of items) {
         if (item.type.indexOf('image') !== -1) {
           handleFileSelect(item.getAsFile(), currentTarget);
-          if (currentTarget === 'streamer') {
-            document.getElementById('userBox').focus();
-            currentTarget = 'user';
-          }
           break;
         }
       }
@@ -196,7 +208,6 @@
         e.preventDefault(); box.classList.remove('border-brand');
         if (e.dataTransfer.files[0]) {
           handleFileSelect(e.dataTransfer.files[0], target);
-          if (target === 'streamer') { document.getElementById('userBox').focus(); currentTarget = 'user'; }
         }
       });
       box.addEventListener('dblclick', () => document.getElementById(target + 'File').click());
@@ -210,13 +221,61 @@
         img.src = e.target.result;
         img.classList.remove('hidden');
         document.getElementById(`${target}Placeholder`).classList.add('hidden');
-        images[target] = await compressImage(e.target.result);
+        
+        // 顯示檢查遮罩
+        const checkOverlay = document.getElementById(`${target}Checking`);
+        checkOverlay.classList.remove('hidden');
+
+        try {
+          // 壓縮成低畫質讓 AI 快速檢查
+          const quickCompressData = await compressImage(e.target.result, 800); 
+          
+          const res = await fetch('/api/diagnose', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: 'quick_check', singleImage: quickCompressData })
+          });
+          
+          const data = await res.json();
+          
+          if (data.type && data.type !== target && data.type !== 'unknown') {
+            // AI 發現貼反了！
+            const targetName = target === 'streamer' ? '主播推流' : '用戶拉流';
+            const detectedName = data.type === 'streamer' ? '主播推流' : '用戶拉流';
+            
+            alert(`⚠️ 貼錯格啦！\n這格應該是「${targetName}」，但您貼的看起來像是「${detectedName}」截圖，請對調後重新貼上。`);
+            
+            // 清空該格子
+            img.src = '';
+            img.classList.add('hidden');
+            document.getElementById(`${target}Placeholder`).classList.remove('hidden');
+            images[target] = null;
+          } else {
+            // 檢查通過，存入高畫質圖片供後續診斷
+            images[target] = await compressImage(e.target.result, 1200);
+            
+            // 貼對了，自動跳到下一格
+            if (target === 'streamer') { 
+              document.getElementById('userBox').focus(); 
+              currentTarget = 'user'; 
+            }
+          }
+        } catch (err) {
+          // 若檢查中斷，直接放行 (當作通過)
+          images[target] = await compressImage(e.target.result, 1200);
+          if (target === 'streamer') { 
+            document.getElementById('userBox').focus(); 
+            currentTarget = 'user'; 
+          }
+        } finally {
+          checkOverlay.classList.add('hidden'); // 隱藏遮罩
+        }
       };
       reader.readAsDataURL(file);
     }
 
     async function startAnalysis() {
-      if (!images.streamer || !images.user) return alert('請貼上主客雙方截圖！');
+      if (!images.streamer || !images.user) return alert('請確認已正確貼上主客雙方截圖！');
 
       const btn = document.getElementById('submitBtn');
       const btnText = document.getElementById('btnText');
@@ -228,7 +287,7 @@
       btn.disabled = true;
       btnIcon.classList.remove('hidden');
       
-      const loadingPhrases = ["上傳影像...", "檢查圖片正確性...", "解析圖表...", "判定責任...", "生成報告..."];
+      const loadingPhrases = ["上傳影像...", "解析圖表...", "判定責任...", "生成報告..."];
       let phraseIndex = 0;
       btnText.innerText = loadingPhrases[0];
       const loadingInterval = setInterval(() => {
@@ -245,12 +304,6 @@
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || '診斷失敗');
-
-        // 【防呆攔截機制】
-        if (data.isImageValid === false) {
-          alert("⚠️ 圖片上傳錯誤攔截！\n\n" + data.errorMessage);
-          return; // 終止流程，不顯示結果卡片
-        }
 
         document.getElementById('resultCard').classList.remove('hidden');
         document.getElementById('diagText').innerText = data.diagnosis;
