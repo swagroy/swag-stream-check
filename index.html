@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SWAG 直播推拉流技術診斷與客服助手</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            swag: {
+              pink: '#FF3B70',
+              black: '#000000',
+              white: '#FFFFFF',
+              dark: '#111111',
+              card: '#1A1A1A'
+            }
+          },
+          fontFamily: {
+            sans: ['"Gotham"', '"Noto Sans TC"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-swag-dark text-swag-white min-h-screen py-10 px-4 font-sans">
+  <div class="max-w-4xl mx-auto">
+    <header class="mb-8 text-center">
+      <h1 class="text-3xl font-bold text-swag-white mb-2">
+        <span class="text-swag-pink">SWAG</span> 直播推拉流品質診斷系統
+      </h1>
+      <p class="text-gray-400">點選框格直接 <kbd class="px-2 py-0.5 bg-swag-card border border-gray-700 rounded text-xs text-gray-300">Ctrl + V</kbd> 貼上截圖，免存檔快速判讀</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <!-- 主播推流上傳/貼上框 -->
+      <div class="bg-swag-card p-5 rounded-xl border border-gray-800 flex flex-col items-center shadow-lg">
+        <div class="flex items-center justify-between w-full mb-3">
+          <h2 class="text-lg font-semibold text-swag-pink">1. 主播推流截圖</h2>
+          <span class="text-xs text-gray-500">可點選後直接 Ctrl+V</span>
+        </div>
+
+        <input type="file" id="streamerFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'streamer')" />
+        
+        <div id="streamerBox" tabindex="0" onclick="focusBox('streamer')"
+             class="w-full h-52 border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-swag-pink focus:border-swag-pink focus:ring-2 focus:ring-swag-pink/30 focus:outline-none transition overflow-hidden relative bg-black/50">
+          <img id="streamerPreview" class="hidden w-full h-full object-contain" />
+          <div id="streamerPlaceholder" class="text-center p-4">
+            <svg class="w-8 h-8 text-gray-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <p class="text-gray-300 text-sm font-medium">點擊此處按 Ctrl+V 貼上</p>
+            <p class="text-gray-500 text-xs mt-1">或點擊開啟檔案、拖曳圖片</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 用戶拉流上傳/貼上框 -->
+      <div class="bg-swag-card p-5 rounded-xl border border-gray-800 flex flex-col items-center shadow-lg">
+        <div class="flex items-center justify-between w-full mb-3">
+          <h2 class="text-lg font-semibold text-white">2. 用戶拉流截圖</h2>
+          <span class="text-xs text-gray-500">可點選後直接 Ctrl+V</span>
+        </div>
+
+        <input type="file" id="userFile" accept="image/*" class="hidden" onchange="handleFileSelect(this.files[0], 'user')" />
+        
+        <div id="userBox" tabindex="0" onclick="focusBox('user')"
+             class="w-full h-52 border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-white focus:border-white focus:ring-2 focus:ring-white/30 focus:outline-none transition overflow-hidden relative bg-black/50">
+          <img id="userPreview" class="hidden w-full h-full object-contain" />
+          <div id="userPlaceholder" class="text-center p-4">
+            <svg class="w-8 h-8 text-gray-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <p class="text-gray-300 text-sm font-medium">點擊此處按 Ctrl+V 貼上</p>
+            <p class="text-gray-500 text-xs mt-1">或點擊開啟檔案、拖曳圖片</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 提交按鈕 -->
+    <div class="text-center mb-8">
+      <button id="submitBtn" onclick="startAnalysis()" class="bg-swag-pink hover:bg-[#E0295D] text-white font-bold px-10 py-3 rounded-full shadow-[0_0_15px_rgba(255,59,112,0.4)] transition-all transform hover:scale-105">
+        開始 AI 診斷
+      </button>
+    </div>
+
+    <!-- 輸出面板 -->
+    <div id="resultCard" class="hidden bg-swag-card border border-gray-800 rounded-xl p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b border-gray-800 pb-4">
+        <div class="flex items-center gap-3">
+          <span id="statusTag" class="px-3 py-1 rounded text-sm font-bold"></span>
+          <span id="compensationTag" class="px-3 py-1 rounded text-sm font-bold border"></span>
+        </div>
+        <button onclick="copyReply()" class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-sm px-4 py-2 rounded-lg transition border border-gray-700">
+          複製回覆話術
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-sm font-bold text-gray-400 mb-2">技術診斷摘要</h3>
+          <p id="diagText" class="text-sm text-gray-300 leading-relaxed bg-black/30 p-4 rounded-lg border border-gray-800/50 min-h-[120px]"></p>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-bold text-gray-400 mb-2">官方客服回覆</h3>
+          <div id="replyText" class="bg-black/50 p-4 rounded-lg text-sm text-gray-200 whitespace-pre-wrap leading-relaxed border border-gray-800 min-h-[120px]"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let images = { streamer: null, user: null };
+    let currentTarget = 'streamer';
+
+    function focusBox(target) {
+      currentTarget = target;
+    }
+
+    window.addEventListener('paste', (e) => {
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      for (const item of items) {
+        if (item.type.indexOf('image') !== -1) {
+          const file = item.getAsFile();
+          handleFileSelect(file, currentTarget);
+          if (currentTarget === 'streamer') {
+            document.getElementById('userBox').focus();
+            currentTarget = 'user';
+          }
+          break;
+        }
+      }
+    });
+
+    ['streamerBox', 'userBox'].forEach((boxId) => {
+      const box = document.getElementById(boxId);
+      const target = boxId === 'streamerBox' ? 'streamer' : 'user';
+
+      box.addEventListener('dragover', (e) => { 
+        e.preventDefault(); 
+        box.classList.add('border-swag-pink', 'bg-swag-pink/5');
+      });
+      box.addEventListener('dragleave', (e) => { 
+        e.preventDefault(); 
+        box.classList.remove('border-swag-pink', 'bg-swag-pink/5');
+      });
+      box.addEventListener('drop', (e) => {
+        e.preventDefault();
+        box.classList.remove('border-swag-pink', 'bg-swag-pink/5');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleFileSelect(e.dataTransfer.files[0], target);
+          if (target === 'streamer') {
+            document.getElementById('userBox').focus();
+            currentTarget = 'user';
+          }
+        }
+      });
+      box.addEventListener('dblclick', () => {
+        document.getElementById(target + 'File').click();
+      });
+    });
+
+    function handleFileSelect(file, target) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        images[target] = e.target.result;
+        const img = document.getElementById(`${target}Preview`);
+        img.src = e.target.result;
+        img.classList.remove('hidden');
+        document.getElementById(`${target}Placeholder`).classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function startAnalysis() {
+      if (!images.streamer || !images.user) {
+        alert('請先貼上或上傳「主播推流」與「用戶拉流」兩張截圖！');
+        return;
+      }
+
+      const btn = document.getElementById('submitBtn');
+      const originalText = btn.innerText;
+      btn.innerText = 'AI 診斷中...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/diagnose', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            streamerImage: images.streamer,
+            userImage: images.user
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || '診斷發生錯誤');
+
+        document.getElementById('resultCard').classList.remove('hidden');
+        document.getElementById('diagText').innerText = data.diagnosis;
+        document.getElementById('replyText').innerText = data.replyScript;
+
+        const compTag = document.getElementById('compensationTag');
+        if (data.isEligibleForCompensation) {
+          compTag.innerText = '符合補償條件';
+          compTag.className = 'px-3 py-1 rounded text-sm font-bold border border-green-500/30 bg-green-500/10 text-green-400';
+        } else {
+          compTag.innerText = '不符合補償條件（婉拒）';
+          compTag.className = 'px-3 py-1 rounded text-sm font-bold border border-swag-pink/30 bg-swag-pink/10 text-swag-pink';
+        }
+
+        const statusTag = document.getElementById('statusTag');
+        statusTag.innerText = data.faultSide === 'streamer' ? '主播端/平台異常' : '用戶本機/網路異常';
+        statusTag.className = 'px-3 py-1 rounded text-sm font-bold bg-white text-black';
+
+        document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      } catch (err) {
+        alert('診斷請求失敗：' + err.message);
+      } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    function copyReply() {
+      const text = document.getElementById('replyText').innerText;
+      navigator.clipboard.writeText(text);
+      alert('客服話術已複製到剪貼簿！');
+    }
+  </script>
+</body>
+</html>
