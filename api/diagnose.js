@@ -59,7 +59,8 @@ export default async function handler(req, res) {
   "replyScript": "這裡填寫給用戶的客服回覆話術（語氣親切，若不補償要提供省電模式、避免邊充邊看等排障建議）"
 }`;
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    // 切換為最新支援的 gemini-2.5-flash
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const result = await model.generateContent([prompt, ...imageParts]);
     const responseText = result.response.text();
 
@@ -69,6 +70,6 @@ export default async function handler(req, res) {
     res.status(200).json(parsedData);
   } catch (error) {
     console.error('API Error:', error);
-    res.status(500).json({ error: 'AI 分析失敗，請檢查 API Key 或稍後再試。' });
+    res.status(500).json({ error: error.message || 'AI 分析失敗，請檢查 API Key 或稍後再試。' });
   }
 }
